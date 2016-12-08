@@ -1,0 +1,236 @@
+{% assign selectedVariant = product.variants[0] %}
+
+<div>
+	<div>
+		<h1>
+			<span>{{product.title}}</span>
+			<span class='product-mark' id='product-mark-{{product.id}}' style='background-color: #222; color: white; padding-right: 8px; padding-left: 8px; text-transform: uppercase; white-space: nowrap; margin-left: 8px; padding-top: 5px; font-size: 14pt'></span>
+		</h1>
+	</div>
+	<div class='product-price'>
+		<h2 style='line-height: 0.5em'>
+			<span id='price'></span>
+			<span id='compare-at-price' style='text-decoration: line-through; opacity: .7; margin-left: 5pt'></span>
+		</h2>
+	</div>
+	<div style="margin: 20px">
+		{% for option in product.options %}
+			<div>
+				<span>{{option.name}}:</span>
+				<div>
+					<select id="option-{{option.name}}" onchange="redraw()">
+						{% for value in option.values %}
+							<option value="{{forloop.index0}}">{{value}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+			<div style='line-height: 0.5em'>&nbsp</div>
+		{% endfor %}
+		<div>
+			<span>Quantity:</span>
+			<div>
+				<input id="quantity-{{product.id}}" type="number" name="quantity" min="1" max="1" step="1" size="4" value="1">
+			</div>
+		</div>
+		<div>
+			<h1 id='add-to-cart-button-{{product.id}}' style='text-transform: uppercase; background-color: #222; color: white; border-radius: 3px; padding-top: 14px; padding-bottom: 10px; padding-left: 20px; padding-right: 20px; display: inline-block; text-align: center; cursor: pointer; height: auto; font-size: 14pt' onclick="onClinkAddToCart()"></h1>
+		</div>
+	</div>
+</div>
+<input type="button" value="Clear Cart" name="jobeesh" onclick="clearCart()">
+
+<script>
+
+	var product = {{product | json}};
+	console.log("product: " + product.id);
+	function redraw() {
+		console.log("redraw()");
+
+		var selectedVariant = getSelectedVariant();
+
+		document.getElementById("price").innerHTML = "$" + selectedVariant.price;
+
+		var compareAtPrice = selectedVariant.compare_at_price;
+		if (!compareAtPrice) {
+			compareAtPrice = ""
+		}
+		else {
+			compareAtPrice = "$" + compareAtPrice;
+		}
+
+		document.getElementById("compare-at-price").innerHTML = compareAtPrice;
+
+		var productMarkText = "";
+		var padding = 0;
+		if (selectedVariant.compare_at_price) {
+			productMarkText = "On Sale";
+			padding = 8;
+		}
+
+		var productMarkElement = document.getElementById("product-mark-" + product.id);
+		productMarkElement.innerHTML = productMarkText;
+		productMarkElement.style.paddingLeft = padding;
+		productMarkElement.style.paddingRight = padding;
+
+		//document.getElementById("product-mark-" + product.id).innerHTML = productMarkText;
+
+		var soldOut = selectedVariant.inventory_management == "shopify" && selectedVariant.inventory_quantity <= 0 && selectedVariant.inventory_policy == "deny";
+		var addToCartButtonText = "Add To Cart";
+		if (soldOut) {
+			addToCartButtonText = "Sold Out";
+		}
+
+		document.getElementById("add-to-cart-button-" + product.id).innerHTML = addToCartButtonText;
+
+		var quantityInput = document.getElementById("quantity-" + product.id);
+		var value = quantityInput.value;
+		var max = 9999;
+		var min = 1;
+		if (selectedVariant.inventory_management == "shopify" && selectedVariant.inventory_policy == "deny") {
+
+			var quantityInCart = 0;
+			if (cart) {
+				quantityInCart = getLineItemQuantity(selectedVariant);
+			}
+
+			var availableInventory = selectedVariant.inventory_quantity - quantityInCart;
+			max = selectedVariant.inventory_quantity - quantityInCart;
+
+			if (max < min) {
+				min = max;
+			}
+		}
+
+		if (value > max) {
+			value = max;
+		}
+		else if (value < min) {
+			value = min;
+		}
+
+		//console.log("min = " + min + ", max = " + max);
+		quantityInput.setAttribute('min', min);
+		quantityInput.setAttribute('max', max);
+		quantityInput.value = value;
+	}
+
+	function getSelectedVariant () {
+
+		var allOptions = product.options;
+		var selectedOptions = [];
+		for (i = 0; i < allOptions.length; i++) {
+			//console.log("option name: " + document.getElementById('option-' + allOptions[i].name).value);
+			var option = allOptions[i];
+			var elementId = 'option-' + option.name;
+			var optionValue = document.getElementById(elementId).value;
+			selectedOptions.push(option.values[optionValue]);
+		}
+
+		var variants = product.variants;
+		var selectedVariant;
+		for (i = 0; i < variants.length; i++) {
+
+			var variant = product.variants[i];
+			var match = true;
+			for (j = 0; j < selectedOptions.length; j++) {
+
+				var option = selectedOptions[j];
+				var variantOption = variant["option" + (j + 1)];
+				//console.log("option = " + option + ", variantOption = " + variantOption);
+
+				if (option != variantOption) {
+					match = false;
+					break;
+				}
+			}
+
+			if (match) {
+				console.log("the selected variant is " + variant.title);
+				return variant;
+			}
+		}
+	}
+
+	redraw();
+
+	var client = ShopifyBuy.buildClient({
+		domain: 'bike-pretty-2.myshopify.com',
+	    apiKey: '04a9e7dd6111f8e155fb21f309671c66',
+	    appId: '6'
+	});
+
+	var product;
+	var cart;
+	var cartLineItemCount;
+	if(localStorage.getItem('lastCartId')) {
+
+		client.fetchCart(localStorage.getItem('lastCartId')).then(function(remoteCart) {
+			console.log("got an existing cart");
+			cart = remoteCart;
+			redraw();
+		});
+
+	} else {
+		client.createCart().then(function (newCart) {
+			console.log("got a new cart");
+			cart = newCart;
+			localStorage.setItem('lastCartId', cart.id);
+			redraw();
+		});
+	}
+
+	function onClinkAddToCart () {
+		//need to block this when the item is sold out
+		//possibly when the user adds too many to their cart
+		var selectedVariant = getSelectedVariant();
+		var quantity = document.getElementById("quantity-" + product.id).value;
+
+		client.fetchProduct(product.id).then(function (fetchedProduct) {
+
+			var fetchedVarient;
+			for (var i = 0; i < fetchedProduct.variants.length; i++) {
+				var variant = fetchedProduct.variants[i];
+				if (variant.id == selectedVariant.id) {
+					fetchedVarient = variant;
+					break;
+				}
+			}
+
+			return cart.createLineItemsFromVariants({variant: fetchedVarient, quantity: quantity});
+
+		}).then(function (cart) {
+			console.log("The cart now contains " + cart.lineItemCount + " items.");
+			console.log("items: " + JSON.stringify(cart.lineItems));
+			console.log(cart.checkoutUrl);
+			redraw();
+		}, function (error) {
+			console.log(error);
+			redraw();
+		});
+	}
+
+	function clearCart () {
+		cart.clearLineItems().then(function (cart) {
+			console.log("no more items: " + cart.lineItemCount);
+		});
+	}
+
+	function getLineItemQuantity(variant) {
+
+		var lineItems = cart.lineItems;
+		for (var i = 0; i < lineItems.length; i++) {
+
+			var lineItem = lineItems[i];
+			if (variant.id == lineItem.variant_id) {
+				return lineItem.quantity;
+			}
+		}
+
+		return 0;
+	}
+
+</script>
+
+
+

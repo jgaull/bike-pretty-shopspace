@@ -1,0 +1,164 @@
+<div>
+	<div  id="a-cart-div">Loading Cart...</div>
+	<input type="button" value="Clear Cart" name="jobeesh" onclick="clearCart()">
+	<input type="button" value="Checkout" name="jobeesh" onclick="checkout()">
+</div>
+
+<div id="sqs-shopping-cart-wrapper">
+	<div id="yui_3_17_2_1_1480486375216_297" class="yui3-widget sqs-widget yui3-tableshoppingcart sqs-fullpage-shopping-cart">
+		<div id="yui_3_17_2_1_1480486375216_299" class="sqs-fullpage-shopping-cart-content">
+			<div class="loading-spinner">
+				<div id="yui_3_17_2_1_1480486375216_366" class="yui3-widget sqs-spin dark" style="height: 50px; width: 50px;">
+				<div id="yui_3_17_2_1_1480486375216_368" class="sqs-spin-content yui3-widget-content-expanded">
+			</div>
+		</div>
+	</div>
+
+	<h2>Shopping Cart</h2>
+
+	<div class="cart-container" id="yui_3_17_2_1_1480486375216_532">
+
+	<table id="cart-table">
+		<thead> 
+			<tr>
+				<td class="item">Item</td>
+				<td></td>
+				<td class="quantity">Quantity</td>
+				<td class="price">Price</td>
+				<td></td>
+			</tr>
+		</thead>
+	</table>
+
+	<div class="subtotal" id="yui_3_17_2_1_1480486375216_531">
+		<span class="label">Subtotal</span>
+		<span class="price">
+			<span id="subtotal" class="sqs-money-native"></span>
+		</span>
+	</div>
+	<div class="checkout">
+		<div class="checkout-button sqs-system-button sqs-editable-button" onclick="checkout()">CHECKOUT</div>
+	</div>
+</div>
+
+<script>
+
+	var client = ShopifyBuy.buildClient({
+		domain: 'bike-pretty-2.myshopify.com',
+	    apiKey: '04a9e7dd6111f8e155fb21f309671c66',
+	    appId: '6'
+	});
+
+	var product;
+	var cart;
+	var cartLineItemCount;
+	if(localStorage.getItem('lastCartId')) {
+
+		client.fetchCart(localStorage.getItem('lastCartId')).then(function(remoteCart) {
+			console.log("got an existing cart");
+			cart = remoteCart;
+			console.log("da cart: " + cart);
+			redraw(cart);
+		});
+
+	} else {
+		client.createCart().then(function (newCart) {
+			console.log("got a new cart");
+			cart = newCart;
+			localStorage.setItem('lastCartId', cart.id);
+			redraw(cart);
+		});
+	}
+
+	function clearCart () {
+		cart.clearLineItems().then(function (cart) {
+			console.log("no more items: " + cart.lineItemCount);
+		});
+
+		redraw();
+	}
+
+	function getLineItemQuantity(variant) {
+
+		var lineItems = cart.lineItems;
+		for (var i = 0; i < lineItems.length; i++) {
+
+			var lineItem = lineItems[i];
+			if (variant.id == lineItem.variant_id) {
+				return lineItem.quantity;
+			}
+		}
+
+		return 0;
+	}
+
+	function redraw() {
+		var lineItems = cart.lineItems;
+		document.getElementById("a-cart-div").innerHTML = JSON.stringify(lineItems);
+		document.getElementById("subtotal").innerHTML = cart.subtotal;
+
+		for (var i = 0; i < lineItems.length; i++) {
+			var lineItem = lineItems[i];
+
+			var imageUrl = lineItem.image.src;
+			var price = lineItem.price;
+			var quantity = lineItem.quantity;
+			var title = lineItem.title;
+			var variantTitle = lineItem.variant_title;
+
+			var table = document.getElementById("cart-table");
+
+			var newRow = table.insertRow(0);
+			var imageCell = newRow.insertCell(0);
+			var descriptionCell = newRow.insertCell(1);
+			var quantityCell = newRow.insertCell(2);
+			var priceCell = newRow.insertCell(3);
+			var removeCell = newRow.insertCell(4);
+
+			imageCell.innerHTML = 	"<div class='item-image'>" + 
+										"<img src='" + imageUrl + "'>" + 
+									"</div>";
+
+			descriptionCell.innerHTML = "<a href='http://www.bikepretty.com'>" + title + "</a>" + 
+										"<div class='variant-info'>" + variantTitle + "</div>";
+
+			quantityCell.innerHTML = 	"<input size='1' value=" + quantity + ">";
+
+			priceCell.innerHTML = "<span class='sqs-money-native'>" + price + "</span>";
+
+			removeCell = "<div class='remove-item'>×</div>";
+		}
+
+		/*
+		<tr data-item-id="5750953ee707eb2ad2aae012" data-chosen-variant-sku="SQ8962260" id="yui_3_17_2_1_1480486375216_511">
+			<td class="item">
+				<div class="item-image">
+					<img src="https://static1.squarespace.com/static/535ed20ce4b06f620aba7217/54b5e55be4b0fee4b00f9fb4/5750980637013b3388326863/1464899610551/Straw-Hat-Bike-Helmet-model-2.jpg?format=100w">
+				</div>
+			</td>
+			<td class="item-desc">
+				<a href="/shop/straw-hat-bike-helmet">Straw Hat Bike Helmet</a>
+				<div class="variant-info">M - US Small / Helmet + Cover</div>
+			</td>
+			<td class="quantity">
+			  	<input size="1">
+			  	<div class="cooldown hidden">•</div>
+			</td>
+			<td class="price">
+				<span class="sqs-money-native">149.00</span>
+			</td>
+			<td class="remove">
+				<div class="remove-item">×</div>
+			</td>
+		</tr>
+		*/
+	}
+
+	function checkout() {
+		window.open(cart.checkoutUrl,"_self");
+	}
+
+</script>
+
+
+
