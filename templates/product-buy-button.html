@@ -1,10 +1,10 @@
-{% assign selectedVariant = product.variants[0] %}
+{% assign selectedVariant = product.shopify.variants[0] %}
 
 <div>
 	<div>
 		<h1>
-			<span>{{product.title}}</span>
-			<span class='product-mark' id='product-mark-{{product.id}}' style='background-color: #222; color: white; padding-right: 8px; padding-left: 8px; text-transform: uppercase; white-space: nowrap; margin-left: 8px; padding-top: 5px; font-size: 14pt'></span>
+			<span>{{product.shopify.title}}</span>
+			<span class='product-mark' id='product-mark-{{product.shopify.id}}' style='background-color: #222; color: white; padding-right: 8px; padding-left: 8px; text-transform: uppercase; white-space: nowrap; margin-left: 8px; padding-top: 5px; font-size: 14pt'></span>
 		</h1>
 	</div>
 	<div class='product-price'>
@@ -14,7 +14,7 @@
 		</h2>
 	</div>
 	<div style="margin: 20px">
-		{% for option in product.options %}
+		{% for option in product.shopify.options %}
 			<div>
 				<span>{{option.name}}:</span>
 				<div>
@@ -30,11 +30,11 @@
 		<div>
 			<span>Quantity:</span>
 			<div>
-				<input id="quantity-{{product.id}}" type="number" name="quantity" min="1" max="1" step="1" size="4" value="1">
+				<input id="quantity-{{product.shopify.id}}" type="number" name="quantity" min="1" max="1" step="1" size="4" value="1">
 			</div>
 		</div>
 		<div>
-			<h1 id='add-to-cart-button-{{product.id}}' style='text-transform: uppercase; background-color: #222; color: white; border-radius: 3px; padding-top: 14px; padding-bottom: 10px; padding-left: 20px; padding-right: 20px; display: inline-block; text-align: center; cursor: pointer; height: auto; font-size: 14pt' onclick="onClinkAddToCart()"></h1>
+			<h1 id='add-to-cart-button-{{product.shopify.id}}' style='text-transform: uppercase; background-color: #222; color: white; border-radius: 3px; padding-top: 14px; padding-bottom: 10px; padding-left: 20px; padding-right: 20px; display: inline-block; text-align: center; cursor: pointer; height: auto; font-size: 14pt' onclick="onClinkAddToCart()"></h1>
 		</div>
 	</div>
 </div>
@@ -42,7 +42,7 @@
 
 <script>
 
-	var product = {{product | json}};
+	var product = {{product.shopify | json}};
 	console.log("product: " + product.id);
 	function redraw() {
 		console.log("redraw()");
