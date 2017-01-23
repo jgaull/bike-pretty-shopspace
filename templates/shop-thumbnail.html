@@ -1,4 +1,4 @@
-{% assign selectedVariant = product.shopify.variants[0] %}
+{% assign selectedVariant = shopify.product.variants[0] %}
 
 {% if selectedVariant.inventory_management == "shopify" and selectedVariant.inventory_quantity <= 0 and selectedVariant.inventory_policy == "deny" %}
 	{% assign productMarkText = "Sold Out" %}
@@ -6,10 +6,10 @@
 	{% assign productMarkText = "On Sale" %}
 {% endif %}
 
-<a href='{{shop.url}}{{product.shopspace.url}}'>
-	<div id='product-{{product.shopify.id}}'>
+<a href='{{shopspace.shop.url}}{{shopspace.product.url}}'>
+	<div id='product-{{shopify.product.id}}'>
 		<div>
-			<img alt='{{product.shopify.title}}' class='loaded' src='{{product.shopify.image.src}}' style='width: 100%'>
+			<img alt='{{shopify.product.title}}' class='loaded' src='{{shopify.product.image.src}}' style='width: 100%'>
 
 			{% if productMarkText %}
 			<div class='product-mark' style='position: absolute; top: 15px; right: 17px; background-color: #222; color: white; font-size: 18px; padding-top: 2px; padding-right: 8px; padding-bottom: 0px; padding-left: 8px; text-transform: uppercase;'>
@@ -18,8 +18,8 @@
 			{% endif %}
 
 		</div>
-		<div class='product-overlay' id='product-overlay-{{product.shopify.id}}'>
-			<div class='product-title' style='font-size: 28px; padding-top: 9px'>{{product.shopify.title}}</div>
+		<div class='product-overlay' id='product-overlay-{{shopify.product.id}}'>
+			<div class='product-title' style='font-size: 28px; padding-top: 9px'>{{shopify.product.title}}</div>
 			<div class='product-price' style='font-size: 18px'>
 				<span class='price'>${{selectedVariant.price}}</span>
 

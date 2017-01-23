@@ -45,8 +45,8 @@
 <script>
 
 	var client = ShopifyBuy.buildClient({
-		domain: 'bike-pretty-2.myshopify.com',
-	    apiKey: '04a9e7dd6111f8e155fb21f309671c66',
+		domain: '{{shopspace.shop.name}}.myshopify.com',
+	    apiKey: '{{shopspace.shop.buyButtonToken}}',
 	    appId: '6'
 	});
 
@@ -120,7 +120,7 @@
 										"<img style='width: 100;' src='" + imageUrl + "'>" + 
 									"</div>";
 
-			descriptionCell.innerHTML = "<a href='http://www.bikepretty.com'>" + title + "</a>" + 
+			descriptionCell.innerHTML = "<a href='{{shopspace.shop.url}}'>" + title + "</a>" + 
 										"<div class='variant-info'>" + variantTitle + "</div>";
 
 			quantityCell.innerHTML = 	"<input size='1' value=" + quantity + ">";
