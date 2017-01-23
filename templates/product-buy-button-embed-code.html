@@ -1,4 +1,4 @@
-<div id='buy-button-{{product.id}}'>
-<h1>{{product.title}}</h1>
+<div id='buy-button-{{shopify.product.id}}'>
+<h1>{{shopify.product.title}}</h1>
 </div>
-<script>$('#buy-button-{{product.id}}').load('{{serverUrl}}squarespace/blocks/product-buy-button?id={{product.id}}');</script>
+<script>$('#buy-button-{{shopify.product.id}}').load('{{serverUrl}}shopspace/{{shopspace.shop.name}}/templates/product-buy-button?productId={{shopify.product.id}}');</script>
