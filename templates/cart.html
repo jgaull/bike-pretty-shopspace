@@ -105,6 +105,9 @@
 			var quantity = lineItem.quantity;
 			var title = lineItem.title;
 			var variantTitle = lineItem.variant_title;
+			var productId = lineItem.product_id;
+
+			console.log("lineItem: " + JSON.stringify(lineItem))
 
 			var table = document.getElementById("cart-table");
 
@@ -119,7 +122,7 @@
 										"<img style='width: 100;' src='" + imageUrl + "'>" + 
 									"</div>";
 
-			descriptionCell.innerHTML = "<a href='{{shopspace.shop.url}}'>" + title + "</a>" + 
+			descriptionCell.innerHTML = "<a href='{{serverUrl}}shopspace/{{shopspace.shop.name}}/sales-channel/products/pages/" + productId + "'>" + title + "</a>" + 
 										"<div class='variant-info'>" + variantTitle + "</div>";
 
 			quantityCell.innerHTML = 	"<input size='1' value=" + quantity + ">";
