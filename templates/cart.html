@@ -121,8 +121,8 @@
 			imageCell.innerHTML = 	"<div class='item-image'>" + 
 										"<img style='width: 100;' src='" + imageUrl + "'>" + 
 									"</div>";
-
-			descriptionCell.innerHTML = "<a href='{{serverUrl}}shopspace/{{shopspace.shop.name}}/sales-channel/products/pages/" + productId + "'>" + title + "</a>" + 
+									
+			descriptionCell.innerHTML = "<a href='{{apiPath}}/products/pages/" + productId + "'>" + title + "</a>" + 
 										"<div class='variant-info'>" + variantTitle + "</div>";
 
 			quantityCell.innerHTML = 	"<input size='1' value=" + quantity + ">";
