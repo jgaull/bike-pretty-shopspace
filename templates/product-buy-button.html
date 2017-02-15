@@ -154,7 +154,7 @@
 	redraw();
 
 	var client = ShopifyBuy.buildClient({
-		domain: '{{shopspace.shop.name}}.myshopify.com',
+		domain: '{{shopspace.shop.shopifySubdomain}}.myshopify.com',
 	    apiKey: '{{shopspace.shop.buyButtonToken}}',
 	    appId: '6'
 	});
