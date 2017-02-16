@@ -6,7 +6,7 @@
 	{% assign productMarkText = "On Sale" %}
 {% endif %}
 
-<a href='{{shopspace.shop.url}}{{shopspace.product.url}}'>
+<a href='{{shopspace.salesChannel.url}}{{shopspace.product.path}}'>
 	<div id='product-{{shopify.product.id}}'>
 		<div>
 			<img alt='{{shopify.product.title}}' class='loaded' src='{{shopify.product.image.src}}' style='width: 100%'>
